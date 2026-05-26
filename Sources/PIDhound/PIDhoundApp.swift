@@ -391,7 +391,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     @MainActor
     private func startObservingAppState(coordinator: AppCoordinator) {
         Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            Task { @MainActor in
+            Task { @MainActor [weak self] in
                 self?.updateStatusLabel()
             }
         }
@@ -459,7 +459,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             object: nil,
             queue: .main
         ) { [weak self] _ in
-            Task { @MainActor in self?.closeDropdown() }
+            Task { @MainActor [weak self] in self?.closeDropdown() }
         }
     }
 
@@ -507,6 +507,7 @@ private struct StatusBarDropdownView: View {
         )
     }
 
+    @MainActor
     private func openDashboard() {
         NSApp.activate(ignoringOtherApps: true)
         if let existing = NSApp.windows.first(where: { $0.title == "PIDhound Dashboard" }) {

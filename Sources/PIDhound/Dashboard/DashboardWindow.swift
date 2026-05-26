@@ -87,7 +87,7 @@ public struct DashboardWindow: View {
         .background(theme.surface)
     }
 
-    @ViewBuilder
+    @MainActor @ViewBuilder
     private var content: some View {
         switch selectedTab {
         case .dashboard:

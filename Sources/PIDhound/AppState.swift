@@ -28,7 +28,7 @@ public final class AppState {
         stopSampling()
         let _ = engine.tick()
         let t = Timer.scheduledTimer(withTimeInterval: intervalSeconds, repeats: true) { [weak self] _ in
-            Task { @MainActor in self?.tickOnce() }
+            Task { @MainActor [weak self] in self?.tickOnce() }
         }
         timer = t
         RunLoop.main.add(t, forMode: .common)
