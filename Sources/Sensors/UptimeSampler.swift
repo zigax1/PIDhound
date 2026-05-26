@@ -24,6 +24,7 @@ public struct UptimeSampler: Sendable {
         var size = MemoryLayout<timeval>.stride
         var mib: [Int32] = [CTL_KERN, KERN_BOOTTIME]
         sysctl(&mib, 2, &bt, &size, nil, 0)
-        return Date(timeIntervalSince1970: TimeInterval(bt.tv_sec))
+        let seconds = TimeInterval(bt.tv_sec) + TimeInterval(bt.tv_usec) / 1_000_000
+        return Date(timeIntervalSince1970: seconds)
     }
 }
