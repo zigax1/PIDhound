@@ -1,0 +1,88 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Xcode
+build/
+DerivedData/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcuserstate
+*.xcuserdatad
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata/
+*.xcscmblueprint
+*.xccheckout
+
+# Swift Package Manager
+.swiftpm/
+.build/
+Packages/
+Package.resolved
+*.xcodeproj
+.netrc
+
+# Carthage / CocoaPods (not used, but defensive)
+Carthage/Build
+Pods/
+
+# Local app data (we use ~/Library/Application Support/PIDhound/ — not in repo, but defensive)
+*.sqlite
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
+
+# Build artifacts
+dist/
+*.dmg
+*.zip
+*.pkg
+ExportOptions.plist
+
+# IDE & editor
+.idea/
+.vscode/
+*.swp
+*~
+.swp
+
+# Brainstorming companion artifacts (local-only, not part of public repo)
+.superpowers/
+
+# Internal design docs — keep out of public repo for now
+docs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Sensitive
+*.p12
+*.cer
+*.mobileprovision
+secrets/

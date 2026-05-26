@@ -1,0 +1,115 @@
+version: 1
+
+groups:
+  - id: claude-code-sessions
+    label: Claude Code Sessions
+    order: 1
+    match:
+      process_name: [claude]
+    idle_threshold_minutes: 30
+    stale_threshold_minutes: 120
+
+  - id: mcp-servers
+    label: MCP Servers
+    order: 2
+    match:
+      process_name: [node, npx, python, python3, npm]
+      argv_contains:
+        - mcp-server
+        - "/mcp/"
+        - "/mcp@"
+        - "-mcp"
+        - "mcp.server"
+        - "@modelcontextprotocol"
+        - playwright-mcp
+        - filesystem-mcp
+        - github-mcp
+    idle_threshold_minutes: 30
+    stale_threshold_minutes: 120
+
+  - id: ai-assistants
+    label: AI Assistants
+    order: 3
+    match:
+      process_name:
+        - Cursor
+        - "Cursor Helper"
+        - Codex
+        - Aider
+        - aider
+        - continue
+        - "GitHub Copilot"
+        - copilot-language-server
+
+  - id: playwright-browsers
+    label: Playwright Browsers
+    order: 4
+    match:
+      process_name:
+        - Chromium
+        - "Chromium Helper"
+        - firefox
+        - webkit
+      argv_contains:
+        - playwright
+        - chromium
+
+  - id: test-runners
+    label: Test Runners
+    order: 5
+    match:
+      process_name: [cypress, vitest, jest, pytest, mocha, ruby]
+      argv_contains:
+        - cypress
+        - vitest
+        - jest
+        - pytest
+        - mocha
+        - rspec
+
+  - id: dev-servers
+    label: Dev Servers
+    order: 6
+    match:
+      process_name: [node, vite, next, webpack, turbopack, ruby, python, python3]
+      argv_contains:
+        - vite
+        - "next dev"
+        - "webpack-dev-server"
+        - turbopack
+        - runserver
+        - uvicorn
+        - "rails server"
+        - "rails s"
+        - "manage.py runserver"
+
+  - id: vscode-helpers
+    label: VS Code Helpers
+    order: 7
+    match:
+      process_name:
+        - "Code Helper"
+        - "Code Helper (Plugin)"
+        - "Code Helper (Renderer)"
+        - "Code Helper (GPU)"
+    never_orphan: true
+
+  - id: docker
+    label: Docker Containers
+    order: 8
+    match:
+      process_name:
+        - com.docker.backend
+        - "Docker Desktop"
+        - "Docker Desktop Helper"
+        - "Docker Desktop Helper (Renderer)"
+        - dockerd
+        - containerd
+        - vpnkit-bridge
+    never_orphan: true
+
+  - id: other
+    label: Other Heavy Hitters
+    order: 99
+    match:
+      process_name: []
