@@ -34,8 +34,8 @@ public struct SkeletonRows: View {
     @ViewBuilder
     private func skeletonBar(width: CGFloat?) -> some View {
         let bar = RoundedRectangle(cornerRadius: 3, style: .continuous)
-            .fill(theme.surfaceElevated)
-            .opacity(0.55 + 0.35 * phase)
+            .fill(theme.surface)
+            .opacity(0.65 + 0.30 * phase)
             .frame(height: 10)
         if let w = width {
             bar.frame(width: w, alignment: .leading)
