@@ -10,10 +10,9 @@ public struct UptimeSampler: Sendable {
     public init() {}
 
     public func sample() -> UptimeReading {
-        return UptimeReading(
-            uptimeSeconds: clockSeconds(CLOCK_MONOTONIC_RAW),
-            awakeSeconds: clockSeconds(CLOCK_UPTIME_RAW)
-        )
+        let awake = clockSeconds(CLOCK_UPTIME_RAW)
+        let uptime = clockSeconds(CLOCK_MONOTONIC_RAW)
+        return UptimeReading(uptimeSeconds: uptime, awakeSeconds: awake)
     }
 
     private func clockSeconds(_ clock: clockid_t) -> TimeInterval {
