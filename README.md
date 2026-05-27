@@ -26,6 +26,8 @@ A Homebrew cask is planned for v1.1.
 
 ## Why
 
+Heavy AI coding sessions kept ending the same way: multiple Claude windows running, MCPs everywhere, Playwright in the background, Docker chugging — and at some point my MacBook fans would scream and the case got hot. I'd ask Claude what to kill, paste the commands back one at a time, things would calm down. Next session, same dance. After enough of that I built a button.
+
 Modern AI-assisted coding spawns dozens of long-lived processes per workday — Claude sessions, MCP servers (per client, per tool), Playwright runs, dev servers, AI helpers. Many outlive their usefulness. The result: sustained high CPU, hot Mac, loud fans, drained battery.
 
 PIDhound is built for the panic moment: glance at the menu bar, see four stale items eating 1.2 GB, hit one button, fans calm down.
