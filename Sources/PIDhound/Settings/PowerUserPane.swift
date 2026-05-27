@@ -32,7 +32,8 @@ public struct PowerUserPane: View {
                     }
                     Spacer()
                 }
-                .padding(.vertical, 6)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
             }
             .opacity(0.7)
         }

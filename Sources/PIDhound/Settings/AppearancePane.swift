@@ -16,6 +16,7 @@ public struct AppearancePane: View {
                         swatch(for: t)
                     }
                 }
+                .padding(.horizontal, 12)
                 .padding(.vertical, 4)
             }
         }

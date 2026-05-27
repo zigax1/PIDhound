@@ -35,7 +35,7 @@ public struct ThemedRow<Leading: View, Trailing: View>: View {
             Spacer()
             trailing()
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 12)
         .padding(.vertical, 8)
     }
 }

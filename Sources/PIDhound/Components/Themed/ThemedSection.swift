@@ -18,14 +18,12 @@ public struct ThemedSection<Content: View, Trailing: View>: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if title != nil || !(trailing() is EmptyView) {
+            if let title {
                 HStack {
-                    if let title {
-                        Text(title.uppercased())
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(theme.textTertiary)
-                            .tracking(0.6)
-                    }
+                    Text(title.uppercased())
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(theme.textTertiary)
+                        .tracking(0.6)
                     Spacer()
                     trailing()
                 }
@@ -36,7 +34,6 @@ public struct ThemedSection<Content: View, Trailing: View>: View {
             VStack(alignment: .leading, spacing: 0) {
                 content()
             }
-            .padding(.horizontal, 12)
             .padding(.bottom, 10)
         }
         .background(theme.surface)

@@ -8,7 +8,7 @@ public struct PortsView: View {
 
     @State private var ports: [ListeningPort] = []
     @State private var isLoading: Bool = true
-    @State private var isRefreshing: Bool = false
+    @State private var spinRotation: Double = 0
     @State private var hoveredPID: Int32?
 
     public init(classified: [ClassifiedProcess], onKillProcess: @escaping (Int32) -> Void) {
@@ -25,16 +25,16 @@ public struct PortsView: View {
                 Text("PID").frame(width: 60, alignment: .leading)
                 Text("ACTION").frame(width: 50, alignment: .leading)
                 Button {
+                    withAnimation(.linear(duration: 0.5)) {
+                        spinRotation += 360
+                    }
                     Task {
-                        isRefreshing = true
                         ports = await Task.detached { PortLister.snapshot() }.value
-                        isRefreshing = false
                     }
                 } label: {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 11))
-                        .rotationEffect(.degrees(isRefreshing ? 360 : 0))
-                        .animation(isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: isRefreshing)
+                        .rotationEffect(.degrees(spinRotation))
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(theme.textSecondary)

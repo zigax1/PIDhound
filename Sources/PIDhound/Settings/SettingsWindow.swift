@@ -50,7 +50,6 @@ public struct SettingsWindow: View {
             }
             .background(theme.background)
         }
-        .frame(minWidth: 640, minHeight: 480)
         .background(theme.background)
         .foregroundStyle(theme.textPrimary)
     }

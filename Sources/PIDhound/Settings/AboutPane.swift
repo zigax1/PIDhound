@@ -30,12 +30,13 @@ public struct AboutPane: View {
                 Link("github.com/zigax1/PIDhound", destination: URL(string: "https://github.com/zigax1/PIDhound")!)
                     .font(.system(size: 12))
                     .foregroundStyle(theme.accent)
+                Spacer()
                 Text("MIT License")
                     .font(.system(size: 11))
                     .foregroundStyle(theme.textTertiary)
-                    .padding(.top, 4)
             }
             .frame(maxWidth: .infinity)
+            .padding(.horizontal, 12)
             .padding(.vertical, 12)
         }
     }

@@ -42,7 +42,7 @@ public struct ShortcutsPane: View {
                     .clipShape(RoundedRectangle(cornerRadius: 4))
             }
         }
-        .padding(.horizontal, 8)
+        .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(
             RoundedRectangle(cornerRadius: 4)
@@ -71,7 +71,7 @@ public struct ShortcutsPane: View {
                 .foregroundStyle(theme.textSecondary)
             textButton("Reseed") { store.reseed() }
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 12)
         .padding(.vertical, 4)
     }
 
