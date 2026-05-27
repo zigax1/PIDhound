@@ -45,8 +45,8 @@ public struct PortsView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             Divider().background(theme.border)
-            if isLoading {
-                SkeletonRows(rowCount: 6, columnWidths: [60, nil, 120, 60, 70])
+            if isLoading && ports.isEmpty {
+                SkeletonRows(rowCount: 10, columnWidths: [60, nil, 120, 60, 50])
                     .padding(.top, 4)
             } else if ports.isEmpty {
                 Text("No listening TCP ports detected.")
@@ -65,8 +65,15 @@ public struct PortsView: View {
         }
         .background(theme.background)
         .task {
+            let start = Date()
             isLoading = true
-            ports = await Task.detached { PortLister.snapshot() }.value
+            let snapshot = await Task.detached { PortLister.snapshot() }.value
+            let elapsed = Date().timeIntervalSince(start)
+            let minVisible: TimeInterval = 0.25
+            if elapsed < minVisible {
+                try? await Task.sleep(nanoseconds: UInt64((minVisible - elapsed) * 1_000_000_000))
+            }
+            ports = snapshot
             isLoading = false
         }
     }
