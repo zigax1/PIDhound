@@ -9,7 +9,8 @@ mkdir -p "${ICONSET}"
 
 # PIDhound icon — pawprint silhouette on dark rounded square.
 # Use NSBitmapImageRep directly to avoid Retina 2x scaling from lockFocus.
-SWIFT_SCRIPT=$(cat <<'EOF'
+TMPDIR_SCRIPT=$(mktemp -d)
+cat > "${TMPDIR_SCRIPT}/gen.swift" <<'EOF'
 import AppKit
 
 let outputs: [(Int, String)] = [
@@ -119,10 +120,7 @@ for (size, filename) in outputs {
     try? png.write(to: URL(fileURLWithPath: path))
 }
 EOF
-)
 
-TMPDIR_SCRIPT=$(mktemp -d)
-echo "${SWIFT_SCRIPT}" > "${TMPDIR_SCRIPT}/gen.swift"
 swift "${TMPDIR_SCRIPT}/gen.swift" "${ICONSET}"
 
 echo "Iconset contents:"

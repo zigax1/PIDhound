@@ -10,7 +10,8 @@ mkdir -p "${ICONSET}"
 # Generate using AppKit drawing — cockpit-gauge icon.
 # iconutil accepts only specific filenames in an iconset.
 # Uses NSBitmapImageRep directly to avoid Retina 2x scaling from lockFocus.
-SWIFT_SCRIPT=$(cat <<'EOF'
+TMPDIR_SCRIPT=$(mktemp -d)
+cat > "${TMPDIR_SCRIPT}/gen.swift" <<'EOF'
 import AppKit
 
 // (pixel size, filename) pairs for a complete iconset
@@ -122,10 +123,7 @@ for (size, filename) in outputs {
     try? png.write(to: URL(fileURLWithPath: path))
 }
 EOF
-)
 
-TMPDIR_SCRIPT=$(mktemp -d)
-echo "${SWIFT_SCRIPT}" > "${TMPDIR_SCRIPT}/gen.swift"
 swift "${TMPDIR_SCRIPT}/gen.swift" "${ICONSET}"
 
 echo "Iconset contents:"
