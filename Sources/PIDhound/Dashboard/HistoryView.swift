@@ -9,6 +9,8 @@ public struct HistoryView: View {
 
     @State private var vitalsHistory: [VitalsPoint] = []
     @State private var killEvents: [KillEvent] = []
+    @State private var isLoading: Bool = true
+    @State private var hoveredEventID: Int64?
 
     public init(database: Persistence.Database) {
         self.database = database
@@ -21,7 +23,12 @@ public struct HistoryView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(theme.textSecondary)
 
-                if vitalsHistory.isEmpty {
+                if isLoading {
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(theme.surface)
+                        .frame(height: 160)
+                        .overlay(SkeletonRows(rowCount: 1, columnWidths: [nil]).padding(.horizontal, 8))
+                } else if vitalsHistory.isEmpty {
                     Text("No history yet. Run for a while and check back.")
                         .font(.callout)
                         .foregroundStyle(theme.textTertiary)
@@ -37,22 +44,16 @@ public struct HistoryView: View {
                 Text("Kill events (last 50)")
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(theme.textSecondary)
-                if killEvents.isEmpty {
+                if isLoading {
+                    SkeletonRows(rowCount: 5, columnWidths: [80, 120, nil, 70])
+                } else if killEvents.isEmpty {
                     Text("No kills recorded yet.")
                         .font(.callout)
                         .foregroundStyle(theme.textTertiary)
                 } else {
-                    ForEach(killEvents) { ev in
-                        HStack {
-                            Text(ev.time, style: .relative)
-                                .font(.system(size: 12))
-                                .foregroundStyle(theme.textSecondary)
-                            Text(ev.processName)
-                                .font(.system(size: 12, design: .monospaced))
-                            Spacer()
-                            Text(ev.reason)
-                                .font(.caption)
-                                .foregroundStyle(theme.textTertiary)
+                    VStack(spacing: 0) {
+                        ForEach(killEvents) { ev in
+                            killEventRow(ev)
                         }
                     }
                 }
@@ -76,6 +77,29 @@ public struct HistoryView: View {
         public let time: Date
         public let processName: String
         public let reason: String
+    }
+
+    private func killEventRow(_ ev: KillEvent) -> some View {
+        let isHovered = hoveredEventID == ev.id
+        return HStack {
+            Text(ev.time, style: .relative)
+                .font(.system(size: 12))
+                .foregroundStyle(theme.textSecondary)
+            Text(ev.processName)
+                .font(.system(size: 12, design: .monospaced))
+            Spacer()
+            Text(ev.reason)
+                .font(.caption)
+                .foregroundStyle(theme.textTertiary)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 5)
+        .contentShape(Rectangle())
+        .background(isHovered ? theme.rowHover : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 4))
+        .onHover { hovering in
+            hoveredEventID = hovering ? ev.id : (hoveredEventID == ev.id ? nil : hoveredEventID)
+        }
     }
 
     private func loadHistory() async {
@@ -103,8 +127,9 @@ public struct HistoryView: View {
             }
             vitalsHistory = vitals
             killEvents = events
+            isLoading = false
         } catch {
-            // ignore for v1
+            isLoading = false
         }
     }
 }

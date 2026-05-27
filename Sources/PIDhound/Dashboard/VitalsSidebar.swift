@@ -11,7 +11,7 @@ public struct VitalsSidebar: View {
         VStack(alignment: .leading, spacing: 12) {
             if let v = vitals {
                 VitalsCardView(label: "CPU", value: "\(Int(v.cpuPercent))", unit: "%",
-                               valueColor: v.cpuPercent > 80 ? theme.danger : v.cpuPercent > 50 ? theme.warning : theme.textPrimary)
+                               valueColor: v.cpuPercent > 80 ? theme.cpuCritical : v.cpuPercent > 50 ? theme.cpuHigh : theme.textPrimary)
                 VitalsCardView(label: "RAM", value: String(format: "%.1f", Double(v.ramUsedBytes) / 1_073_741_824),
                                unit: " / \(String(format: "%.0f", Double(v.ramTotalBytes) / 1_073_741_824)) GB")
                 VitalsCardView(label: "Thermal", value: v.thermalState.rawValue.capitalized,
@@ -31,8 +31,8 @@ public struct VitalsSidebar: View {
     private func thermalColor(_ s: ThermalState) -> Color {
         switch s {
         case .nominal: return theme.success
-        case .moderate: return theme.warning
-        case .heavy, .critical: return theme.danger
+        case .moderate: return theme.thermalAlert
+        case .heavy, .critical: return theme.thermalCritical
         }
     }
 

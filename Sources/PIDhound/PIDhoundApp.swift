@@ -105,13 +105,17 @@ struct PIDhoundApp: App {
             )
         }
         .windowResizability(.contentSize)
-
-        Settings {
-            SettingsWindow(
-                settings: coordinator.settings,
-                shortcutsStore: coordinator.shortcutsStore
-            )
-            .theme(currentTheme)
+        .commands {
+            // Settings now lives as a tab inside the dashboard window.
+            // Replace the default Cmd+, handler so it routes there too.
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings...") {
+                    coordinator.appState.selectedDashboardTab = .settings
+                    AppCoordinator.shared?.openDashboardAction?()
+                    NSApp.activate(ignoringOtherApps: true)
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
         }
     }
 
@@ -233,6 +237,8 @@ private struct DashboardSceneContent: View {
         DashboardWindow(
             appState: coordinator.appState,
             database: coordinator.database,
+            settings: coordinator.settings,
+            shortcutsStore: coordinator.shortcutsStore,
             onKillProcess: onKillProcess,
             onKillAllStale: onKillAllStale,
             shortcuts: coordinator.shortcutsStore.shortcuts,
@@ -288,6 +294,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     private var dropdownEventMonitor: Any?
     private var dropdownResignObserver: NSObjectProtocol?
     private var statusButtonClickMonitor: Any?
+    // Captured once the dashboard window first appears. Identifying by reference
+    // avoids fragility around the window title — embedded SwiftUI subviews can
+    // overwrite it via .navigationTitle and previously broke close-to-menu-bar.
+    private weak var dashboardWindow: NSWindow?
 
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -298,18 +308,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
             queue: .main
         ) { [weak self] notification in
             guard let self = self,
-                  let window = notification.object as? NSWindow,
-                  window.title == "PIDhound Dashboard" else { return }
-            NSApp.setActivationPolicy(.regular)
-            // Intercept close so the X / Cmd+W hides the window instead of destroying it.
-            if window.delegate !== self {
-                window.delegate = self
+                  let window = notification.object as? NSWindow else { return }
+            MainActor.assumeIsolated {
+                self.handleWindowDidBecomeKey(window)
             }
         }
     }
 
+    @MainActor
+    private func handleWindowDidBecomeKey(_ window: NSWindow) {
+        // Identify the dashboard window once and hold a weak reference forever.
+        if dashboardWindow == nil && isDashboardWindow(window) {
+            dashboardWindow = window
+        }
+        guard window === dashboardWindow else { return }
+        NSApp.setActivationPolicy(.regular)
+        if window.delegate !== self {
+            window.delegate = self
+        }
+    }
+
+    private func isDashboardWindow(_ window: NSWindow) -> Bool {
+        // The WindowGroup is registered with id "dashboard"; SwiftUI propagates
+        // that into the NSWindow.identifier. Fall back to the original title
+        // match because identifier formatting can shift across macOS versions.
+        if let raw = window.identifier?.rawValue, raw.contains("dashboard") {
+            return true
+        }
+        return window.title == "PIDhound Dashboard"
+    }
+
     func windowShouldClose(_ sender: NSWindow) -> Bool {
-        guard sender.title == "PIDhound Dashboard" else { return true }
+        guard sender === dashboardWindow else { return true }
         sender.orderOut(nil)
         NSApp.setActivationPolicy(.accessory)
         return false
@@ -329,7 +359,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
         // For a menu-bar utility we want zero visible windows until the user
         // explicitly opens Dashboard or Settings.
         DispatchQueue.main.async {
-            for window in NSApp.windows where window.title == "PIDhound Dashboard" {
+            for window in NSApp.windows where (window.identifier?.rawValue.contains("dashboard") ?? false) || window.title == "PIDhound Dashboard" {
                 window.orderOut(nil)
             }
             NSApp.setActivationPolicy(.accessory)
@@ -502,21 +532,38 @@ private struct StatusBarDropdownView: View {
             staleCountActionable: appState.staleCountActionable,
             staleCountOther: appState.staleCountOther,
             onOpenDashboard: openDashboard,
-            onOpenSettings: { closePopover() },
+            onOpenSettings: openSettings,
             onQuit: { NSApp.terminate(nil) }
         )
     }
 
     @MainActor
     private func openDashboard() {
+        coordinator.appState.selectedDashboardTab = .dashboard
+        showDashboardWindow()
+        closePopover()
+    }
+
+    @MainActor
+    private func openSettings() {
+        coordinator.appState.selectedDashboardTab = .settings
+        showDashboardWindow()
+        closePopover()
+    }
+
+    @MainActor
+    private func showDashboardWindow() {
         NSApp.activate(ignoringOtherApps: true)
-        if let existing = NSApp.windows.first(where: { $0.title == "PIDhound Dashboard" }) {
+        let existing = NSApp.windows.first(where: { window in
+            if let raw = window.identifier?.rawValue, raw.contains("dashboard") { return true }
+            return window.title == "PIDhound Dashboard"
+        })
+        if let existing {
             if existing.isMiniaturized { existing.deminiaturize(nil) }
             existing.makeKeyAndOrderFront(nil)
         } else {
             coordinator.openDashboardAction?()
         }
-        closePopover()
     }
 }
 

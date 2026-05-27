@@ -151,7 +151,7 @@ public struct MenuBarDropdown: View {
                 shortcut: "O",
                 action: onOpenDashboard
             )
-            SettingsActionRow(closePopover: onOpenSettings)
+            SettingsActionRow(openSettings: onOpenSettings)
             ActionRow(
                 title: "Quit PIDhound",
                 shortcut: "Q",
@@ -247,17 +247,16 @@ private struct ActionRow: View {
     }
 }
 
-// SettingsLink is the reliable way to open the SwiftUI Settings scene from an
-// LSUIElement (menu-bar-only) app on macOS 14+. The AppKit `showSettingsWindow:`
-// selector is flaky for accessory apps because the responder chain may not
-// include the Settings scene host.
+// Settings now lives as a tab inside the dashboard. The menu bar Settings row
+// is a plain button that opens the dashboard with the Settings tab selected;
+// the routing logic is owned by the caller (AppDelegate / coordinator).
 private struct SettingsActionRow: View {
-    let closePopover: () -> Void
+    let openSettings: () -> Void
 
     @State private var isHovered = false
 
     var body: some View {
-        SettingsLink {
+        Button(action: openSettings) {
             HStack(spacing: 8) {
                 Text("Settings")
                     .font(.system(size: 13))
@@ -279,7 +278,6 @@ private struct SettingsActionRow: View {
         .buttonStyle(.plain)
         .padding(.horizontal, 5)
         .onHover { hovering in isHovered = hovering }
-        .simultaneousGesture(TapGesture().onEnded { closePopover() })
     }
 }
 

@@ -7,6 +7,8 @@ public struct PortsView: View {
     public let onKillProcess: (Int32) -> Void
 
     @State private var ports: [ListeningPort] = []
+    @State private var isLoading: Bool = true
+    @State private var hoveredPID: Int32?
 
     public init(classified: [ClassifiedProcess], onKillProcess: @escaping (Int32) -> Void) {
         self.classified = classified
@@ -24,7 +26,11 @@ public struct PortsView: View {
                     Text("ACTION").frame(width: 70, alignment: .leading)
                 }
                 Button {
-                    Task { ports = await Task.detached { PortLister.snapshot() }.value }
+                    Task {
+                        isLoading = true
+                        ports = await Task.detached { PortLister.snapshot() }.value
+                        isLoading = false
+                    }
                 } label: {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 11))
@@ -37,7 +43,10 @@ public struct PortsView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             Divider().background(theme.border)
-            if ports.isEmpty {
+            if isLoading {
+                SkeletonRows(rowCount: 6, columnWidths: [60, nil, 120, 60, 70])
+                    .padding(.top, 4)
+            } else if ports.isEmpty {
                 Text("No listening TCP ports detected.")
                     .font(.callout)
                     .foregroundStyle(theme.textSecondary)
@@ -46,36 +55,50 @@ public struct PortsView: View {
                 ScrollView {
                     VStack(spacing: 0) {
                         ForEach(portRows, id: \.id) { row in
-                            HStack {
-                                Text("\(row.port)")
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .frame(width: 60, alignment: .leading)
-                                Text(row.name)
-                                    .font(.system(size: 12))
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .lineLimit(1)
-                                Text(row.group)
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(theme.textSecondary)
-                                    .frame(width: 120, alignment: .leading)
-                                    .lineLimit(1)
-                                Text("\(row.pid)")
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .frame(width: 60, alignment: .leading)
-                                Button("Free") { onKillProcess(row.pid) }
-                                    .buttonStyle(.bordered)
-                                    .controlSize(.small)
-                                    .frame(width: 70, alignment: .leading)
-                            }
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
+                            portRowView(row)
                         }
                     }
                 }
             }
         }
         .background(theme.background)
-        .task { ports = await Task.detached { PortLister.snapshot() }.value }
+        .task {
+            isLoading = true
+            ports = await Task.detached { PortLister.snapshot() }.value
+            isLoading = false
+        }
+    }
+
+    private func portRowView(_ row: PortRow) -> some View {
+        let isHovered = hoveredPID == row.pid
+        return HStack {
+            Text("\(row.port)")
+                .font(.system(size: 12, design: .monospaced))
+                .frame(width: 60, alignment: .leading)
+            Text(row.name)
+                .font(.system(size: 12))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .lineLimit(1)
+            Text(row.group)
+                .font(.system(size: 12))
+                .foregroundStyle(theme.textSecondary)
+                .frame(width: 120, alignment: .leading)
+                .lineLimit(1)
+            Text("\(row.pid)")
+                .font(.system(size: 12, design: .monospaced))
+                .frame(width: 60, alignment: .leading)
+            Button("Free") { onKillProcess(row.pid) }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .frame(width: 70, alignment: .leading)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 5)
+        .contentShape(Rectangle())
+        .background(isHovered ? theme.rowHover : Color.clear)
+        .onHover { hovering in
+            hoveredPID = hovering ? row.pid : (hoveredPID == row.pid ? nil : hoveredPID)
+        }
     }
 
     private struct PortRow: Identifiable {

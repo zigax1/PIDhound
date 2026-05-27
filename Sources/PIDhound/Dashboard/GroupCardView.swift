@@ -7,6 +7,7 @@ public struct GroupCardView: View {
     public let group: Grouping.Group
     public let onKillProcess: (Int32) -> Void
     @State private var expanded: Bool = true
+    @State private var hoveredPID: Int32?
 
     public init(group: Grouping.Group, onKillProcess: @escaping (Int32) -> Void) {
         self.group = group
@@ -60,7 +61,8 @@ public struct GroupCardView: View {
     }
 
     private func processRow(_ proc: ClassifiedProcess) -> some View {
-        HStack(spacing: 8) {
+        let isHovered = hoveredPID == proc.snapshot.pid
+        return HStack(spacing: 8) {
             Text(proc.displayName)
                 .font(.system(size: 12))
                 .lineLimit(1)
@@ -76,14 +78,19 @@ public struct GroupCardView: View {
                 .foregroundStyle(theme.textSecondary)
             Button(action: { onKillProcess(proc.snapshot.pid) }) {
                 Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(theme.danger)
+                    .foregroundStyle(isHovered ? theme.danger : theme.danger.opacity(0.65))
                     .font(.system(size: 13))
             }
             .buttonStyle(.plain)
             .help("Kill PID \(proc.snapshot.pid)")
         }
         .padding(.horizontal, 12)
-        .padding(.vertical, 4)
+        .padding(.vertical, 5)
+        .contentShape(Rectangle())
+        .background(isHovered ? theme.rowHover : Color.clear)
+        .onHover { hovering in
+            hoveredPID = hovering ? proc.snapshot.pid : (hoveredPID == proc.snapshot.pid ? nil : hoveredPID)
+        }
     }
 
     private func stateTagChip(_ tag: StateTag) -> some View {

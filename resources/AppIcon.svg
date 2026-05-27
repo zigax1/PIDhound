@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <rect width="1024" height="1024" rx="224" fill="#0b0c0f"/>
+  <g transform="rotate(-12 512 512) translate(512 512) scale(1.2) translate(-512 -512)">
+    <rect x="280" y="320" width="464" height="384" rx="60" fill="#46e08a"/>
+    <circle cx="340" cy="380" r="22" fill="#0b0c0f"/>
+    <text x="512" y="540" text-anchor="middle"
+          font-family="SF Mono, ui-monospace, Menlo, Monaco, Consolas, monospace"
+          font-size="160" font-weight="700" fill="#0b0c0f">PID</text>
+    <text x="512" y="650" text-anchor="middle"
+          font-family="SF Mono, ui-monospace, Menlo, Monaco, Consolas, monospace"
+          font-size="58" font-weight="600" fill="#0b0c0f" fill-opacity="0.6" letter-spacing="6">HOUND</text>
+  </g>
+</svg>

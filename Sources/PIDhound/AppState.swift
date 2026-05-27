@@ -6,6 +6,19 @@ import Grouping
 import Persistence
 import PIDhoundCore
 
+public enum DashboardTab: String, CaseIterable, Identifiable, Hashable {
+    case dashboard, ports, history, settings
+    public var id: String { rawValue }
+    public var label: String {
+        switch self {
+        case .dashboard: return "Dashboard"
+        case .ports: return "Ports"
+        case .history: return "History"
+        case .settings: return "Settings"
+        }
+    }
+}
+
 @Observable
 @MainActor
 public final class AppState {
@@ -17,6 +30,8 @@ public final class AppState {
     public private(set) var latestClassified: [ClassifiedProcess] = []
     public private(set) var latestTickAt: Date?
     public private(set) var errorMessage: String?
+
+    public var selectedDashboardTab: DashboardTab = .dashboard
 
     public func clearError() { errorMessage = nil }
 

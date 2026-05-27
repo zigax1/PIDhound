@@ -48,10 +48,8 @@ public struct SettingsWindow: View {
         } detail: {
             detail
                 .frame(minWidth: 480, idealWidth: 540)
-                .navigationTitle(selection.label)
         }
         .navigationSplitViewStyle(.balanced)
-        .frame(minWidth: 720, minHeight: 500, idealHeight: 540)
     }
 
     @ViewBuilder
