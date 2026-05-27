@@ -10,21 +10,15 @@ public struct UptimeSampler: Sendable {
     public init() {}
 
     public func sample() -> UptimeReading {
-        let uptime = ProcessInfo.processInfo.systemUptime
-        let bootDate = bootTime()
-        let totalSinceBoot = Date().timeIntervalSince(bootDate)
         return UptimeReading(
-            uptimeSeconds: totalSinceBoot,
-            awakeSeconds: uptime
+            uptimeSeconds: clockSeconds(CLOCK_MONOTONIC_RAW),
+            awakeSeconds: clockSeconds(CLOCK_UPTIME_RAW)
         )
     }
 
-    private func bootTime() -> Date {
-        var bt = timeval()
-        var size = MemoryLayout<timeval>.stride
-        var mib: [Int32] = [CTL_KERN, KERN_BOOTTIME]
-        sysctl(&mib, 2, &bt, &size, nil, 0)
-        let seconds = TimeInterval(bt.tv_sec) + TimeInterval(bt.tv_usec) / 1_000_000
-        return Date(timeIntervalSince1970: seconds)
+    private func clockSeconds(_ clock: clockid_t) -> TimeInterval {
+        var ts = timespec()
+        clock_gettime(clock, &ts)
+        return TimeInterval(ts.tv_sec) + TimeInterval(ts.tv_nsec) / 1_000_000_000
     }
 }
