@@ -47,11 +47,33 @@ extension RulesFile {
     }
 
     public static func loadBundled() throws -> RulesFile {
-        guard let url = Bundle.module.url(forResource: "rules", withExtension: "yaml") else {
-            throw RulesFileError.bundledFileMissing
+        // SwiftPM's auto-generated Bundle.module is unusable in .app builds:
+        // its first lookup path puts the resource bundle at the .app root,
+        // which codesign rejects as unsealed content. Resolve manually for
+        // production paths and only fall back to Bundle.module under the
+        // SwiftPM test runner, where Bundle.main points outside our build tree.
+        let candidates: [URL] = [
+            // .app: Contents/Resources/rules.yaml
+            Bundle.main.url(forResource: "rules", withExtension: "yaml"),
+            // SwiftPM CLI (swift run): bundle sits next to the executable.
+            Bundle.main.bundleURL.appendingPathComponent("pidhound_Processes.bundle/rules.yaml"),
+        ].compactMap { $0 }
+
+        for url in candidates where FileManager.default.fileExists(atPath: url.path) {
+            let yaml = try String(contentsOf: url, encoding: .utf8)
+            return try from(yaml: yaml)
         }
-        let yaml = try String(contentsOf: url, encoding: .utf8)
-        return try from(yaml: yaml)
+
+        if isSwiftPMTestRunner, let url = Bundle.module.url(forResource: "rules", withExtension: "yaml") {
+            let yaml = try String(contentsOf: url, encoding: .utf8)
+            return try from(yaml: yaml)
+        }
+        throw RulesFileError.bundledFileMissing
+    }
+
+    private static var isSwiftPMTestRunner: Bool {
+        guard let name = Bundle.main.executableURL?.lastPathComponent else { return false }
+        return name == "swiftpm-testing-helper" || name.hasPrefix("xctest")
     }
 }
 

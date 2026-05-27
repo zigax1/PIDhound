@@ -38,12 +38,17 @@ if [ -f "resources/AppIcon.icns" ]; then
     cp "resources/AppIcon.icns" "${BUNDLE}/Contents/Resources/AppIcon.icns"
 fi
 
-# Copy resource bundles (rules.yaml and others SwiftPM resource accessors expect)
-for bundle_src in .build/release/*.bundle; do
-    if [ -d "${bundle_src}" ]; then
-        cp -r "${bundle_src}" "${BUNDLE}/Contents/Resources/"
-    fi
-done
+# SwiftPM's auto-generated Bundle.module accessor is incompatible with .app
+# layouts (it expects bundles at the .app root, which codesign rejects as
+# unsealed content). Copy rules.yaml directly to Contents/Resources/ so the
+# code can find it via Bundle.main.url(forResource:).
+RULES_SRC=".build/release/pidhound_Processes.bundle/rules.yaml"
+if [ -f "${RULES_SRC}" ]; then
+    cp "${RULES_SRC}" "${BUNDLE}/Contents/Resources/rules.yaml"
+else
+    echo "Error: ${RULES_SRC} not found - SwiftPM resource bundle missing" >&2
+    exit 1
+fi
 
 # Code signing
 # - With a Developer ID in PIDHOUND_SIGN_IDENTITY: full signature + hardened runtime.
