@@ -45,12 +45,17 @@ for bundle_src in .build/release/*.bundle; do
     fi
 done
 
-# Code signing (best-effort, only if a Developer ID is set in environment)
+# Code signing
+# - With a Developer ID in PIDHOUND_SIGN_IDENTITY: full signature + hardened runtime.
+# - Without one: ad-hoc sign (-s -). On Sequoia/Tahoe, fully unsigned apps trigger
+#   a "damaged" alert with no right-click-Open escape hatch. Ad-hoc signing keeps
+#   the standard Gatekeeper prompt where the user can right-click -> Open once.
 if [ -n "${PIDHOUND_SIGN_IDENTITY:-}" ]; then
     echo "Signing with identity: ${PIDHOUND_SIGN_IDENTITY}"
     codesign --force --options runtime --sign "${PIDHOUND_SIGN_IDENTITY}" "${BUNDLE}"
 else
-    echo "Skipping code signing (set PIDHOUND_SIGN_IDENTITY to enable)"
+    echo "Ad-hoc signing (no Developer ID set)"
+    codesign --force --deep --sign - "${BUNDLE}"
 fi
 
 echo ""
