@@ -63,6 +63,7 @@ public struct PortsView: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(theme.background)
         .task {
             let start = Date()

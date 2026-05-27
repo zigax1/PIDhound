@@ -36,16 +36,16 @@ public struct DashboardWindow: View {
     }
 
     public var body: some View {
-        HStack(spacing: 0) {
-            if appState.selectedDashboardTab != .settings {
-                VitalsSidebar(vitals: appState.latestVitals)
+        VStack(spacing: 0) {
+            if let msg = appState.errorMessage {
+                ErrorBanner(message: msg, onDismiss: { appState.clearError() })
             }
-            VStack(spacing: 0) {
-                if let msg = appState.errorMessage {
-                    ErrorBanner(message: msg, onDismiss: { appState.clearError() })
+            tabBar
+            Divider().background(theme.border)
+            HStack(spacing: 0) {
+                if appState.selectedDashboardTab != .settings {
+                    VitalsSidebar(vitals: appState.latestVitals)
                 }
-                tabBar
-                Divider().background(theme.border)
                 content
             }
         }
