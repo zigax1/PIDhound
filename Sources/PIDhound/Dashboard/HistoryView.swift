@@ -10,7 +10,6 @@ public struct HistoryView: View {
     @State private var vitalsHistory: [VitalsPoint] = []
     @State private var killEvents: [KillEvent] = []
     @State private var isLoading: Bool = true
-    @State private var hoveredEventID: Int64?
 
     public init(database: Persistence.Database) {
         self.database = database
@@ -41,7 +40,7 @@ public struct HistoryView: View {
                 }
 
                 Divider().background(theme.border)
-                Text("Kill events (last 50)")
+                Text("Killed events (last 50)")
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(theme.textSecondary)
                 if isLoading {
@@ -80,26 +79,29 @@ public struct HistoryView: View {
     }
 
     private func killEventRow(_ ev: KillEvent) -> some View {
-        let isHovered = hoveredEventID == ev.id
-        return HStack {
+        HStack {
             Text(ev.time, style: .relative)
                 .font(.system(size: 12))
                 .foregroundStyle(theme.textSecondary)
             Text(ev.processName)
                 .font(.system(size: 12, design: .monospaced))
+                .foregroundStyle(theme.textPrimary)
             Spacer()
-            Text(ev.reason)
-                .font(.caption)
-                .foregroundStyle(theme.textTertiary)
+            reasonChip(ev.reason)
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 5)
-        .contentShape(Rectangle())
-        .background(isHovered ? theme.rowHover : Color.clear)
-        .clipShape(RoundedRectangle(cornerRadius: 4))
-        .onHover { hovering in
-            hoveredEventID = hovering ? ev.id : (hoveredEventID == ev.id ? nil : hoveredEventID)
-        }
+    }
+
+    private func reasonChip(_ reason: String) -> some View {
+        Text(reason)
+            .font(.system(size: 10, weight: .semibold))
+            .foregroundStyle(theme.textTertiary)
+            .padding(.horizontal, 5)
+            .padding(.vertical, 1)
+            .background(theme.textTertiary.opacity(0.10))
+            .overlay(RoundedRectangle(cornerRadius: 3).stroke(theme.textTertiary.opacity(0.25), lineWidth: 0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 3))
     }
 
     private func loadHistory() async {
