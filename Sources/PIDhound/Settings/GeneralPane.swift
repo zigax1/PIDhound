@@ -5,17 +5,20 @@ public struct GeneralPane: View {
     public init(settings: SettingsStore) { self.settings = settings }
 
     public var body: some View {
-        Form {
-            Section {
-                Toggle("Launch at login", isOn: $settings.launchAtLogin)
-                Picker("Polling interval", selection: $settings.pollingIntervalSeconds) {
-                    Text("1 second").tag(1)
-                    Text("2 seconds").tag(2)
-                    Text("5 seconds").tag(5)
-                }
-            } header: { Text("Behavior") }
+        VStack(alignment: .leading, spacing: 12) {
+            ThemedSection("Behavior") {
+                ThemedToggle(
+                    "Launch at login",
+                    helper: "Start PIDhound automatically when you log in.",
+                    isOn: $settings.launchAtLogin
+                )
+                ThemedSegmentedPicker(
+                    "Polling interval",
+                    helper: "How often vitals and processes are sampled.",
+                    selection: $settings.pollingIntervalSeconds,
+                    options: [(1, "1s"), (2, "2s"), (5, "5s")]
+                )
+            }
         }
-        .formStyle(.grouped)
-        .padding(16)
     }
 }
