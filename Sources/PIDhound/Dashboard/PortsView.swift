@@ -8,6 +8,7 @@ public struct PortsView: View {
 
     @State private var ports: [ListeningPort] = []
     @State private var isLoading: Bool = true
+    @State private var isRefreshing: Bool = false
     @State private var hoveredPID: Int32?
 
     public init(classified: [ClassifiedProcess], onKillProcess: @escaping (Int32) -> Void) {
@@ -17,26 +18,27 @@ public struct PortsView: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack {
-                HStack {
-                    Text("PORT").frame(width: 60, alignment: .leading)
-                    Text("PROCESS").frame(maxWidth: .infinity, alignment: .leading)
-                    Text("GROUP").frame(width: 120, alignment: .leading)
-                    Text("PID").frame(width: 60, alignment: .leading)
-                    Text("ACTION").frame(width: 70, alignment: .leading)
-                }
+            HStack(spacing: 0) {
+                Text("PORT").frame(width: 60, alignment: .leading)
+                Text("PROCESS").frame(maxWidth: .infinity, alignment: .leading)
+                Text("GROUP").frame(width: 120, alignment: .leading)
+                Text("PID").frame(width: 60, alignment: .leading)
+                Text("ACTION").frame(width: 50, alignment: .leading)
                 Button {
                     Task {
-                        isLoading = true
+                        isRefreshing = true
                         ports = await Task.detached { PortLister.snapshot() }.value
-                        isLoading = false
+                        isRefreshing = false
                     }
                 } label: {
                     Image(systemName: "arrow.clockwise")
                         .font(.system(size: 11))
+                        .rotationEffect(.degrees(isRefreshing ? 360 : 0))
+                        .animation(isRefreshing ? .linear(duration: 0.8).repeatForever(autoreverses: false) : .default, value: isRefreshing)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(theme.textSecondary)
+                .frame(width: 24, alignment: .trailing)
             }
             .font(.system(size: 10, weight: .semibold))
             .foregroundStyle(theme.textTertiary)
@@ -87,10 +89,11 @@ public struct PortsView: View {
             Text("\(row.pid)")
                 .font(.system(size: 12, design: .monospaced))
                 .frame(width: 60, alignment: .leading)
-            Button("Free") { onKillProcess(row.pid) }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                .frame(width: 70, alignment: .leading)
+            KillButton(pid: row.pid, tooltip: "Kill PID \(row.pid) \u{2014} frees port \(row.port)") {
+                onKillProcess(row.pid)
+            }
+            .frame(width: 50, alignment: .leading)
+            Spacer().frame(width: 24)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 5)
