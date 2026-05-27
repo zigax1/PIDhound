@@ -27,6 +27,7 @@ public enum SettingsSection: String, CaseIterable, Identifiable, Hashable {
 }
 
 public struct SettingsWindow: View {
+    @Environment(\.theme) private var theme
     @Bindable var settings: SettingsStore
     public let shortcutsStore: ShortcutsStore
 
@@ -38,18 +39,26 @@ public struct SettingsWindow: View {
     }
 
     public var body: some View {
-        NavigationSplitView {
-            List(SettingsSection.allCases, selection: $selection) { section in
-                Label(section.label, systemImage: section.systemImage)
-                    .tag(section)
+        HStack(spacing: 0) {
+            ThemedSidebar(items: sidebarItems, selection: $selection)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    detail
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            .listStyle(.sidebar)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200, max: 240)
-        } detail: {
-            detail
-                .frame(minWidth: 480, idealWidth: 540)
+            .background(theme.background)
         }
-        .navigationSplitViewStyle(.balanced)
+        .frame(minWidth: 640, minHeight: 480)
+        .background(theme.background)
+        .foregroundStyle(theme.textPrimary)
+    }
+
+    private var sidebarItems: [ThemedSidebarItem<SettingsSection>] {
+        SettingsSection.allCases.map {
+            ThemedSidebarItem(id: $0, label: $0.label, systemImage: $0.systemImage)
+        }
     }
 
     @ViewBuilder
