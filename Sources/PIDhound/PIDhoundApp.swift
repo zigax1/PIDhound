@@ -289,6 +289,11 @@ final class DropdownPanel: NSPanel {
 
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
+    // Set to true only by the menu-bar dropdown's Quit button. Any other
+    // terminate request (Dock right-click → Quit, Cmd+Q with the dashboard
+    // focused) is downgraded to "hide window, stay in menu bar".
+    static var userInitiatedQuit = false
+
     private var statusItem: NSStatusItem!
     private var dropdownPanel: DropdownPanel?
     private var dropdownEventMonitor: Any?
@@ -507,6 +512,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         return false
     }
+
+    // Intercept Dock → Quit and Cmd+Q so they hide the dashboard instead of
+    // killing the process. Only the menu-bar dropdown's Quit button sets the
+    // flag and is allowed through. Matches Docker/Postgres.app behavior.
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if AppDelegate.userInitiatedQuit {
+            return .terminateNow
+        }
+        if let window = dashboardWindow, window.isVisible {
+            window.orderOut(nil)
+        }
+        NSApp.setActivationPolicy(.accessory)
+        return .terminateCancel
+    }
 }
 
 // MARK: - Status bar host views
@@ -533,7 +552,10 @@ private struct StatusBarDropdownView: View {
             staleCountOther: appState.staleCountOther,
             onOpenDashboard: openDashboard,
             onOpenSettings: openSettings,
-            onQuit: { NSApp.terminate(nil) }
+            onQuit: {
+                AppDelegate.userInitiatedQuit = true
+                NSApp.terminate(nil)
+            }
         )
     }
 
