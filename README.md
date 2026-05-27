@@ -12,7 +12,15 @@ Download the latest DMG from [Releases](https://github.com/zigax1/PIDhound/relea
 
 **Requirements:** macOS 14 Sonoma or later, Apple Silicon (M1 / M2 / M3 / M4).
 
-> **First launch note:** the v1.0 DMG is unsigned. macOS will block it on first launch. Right-click PIDhound in Applications, choose **Open**, confirm once — after that it launches normally.
+> **First launch note:** the v1.0 DMG is ad-hoc signed but not notarized. On first launch, right-click PIDhound in Applications, choose **Open**, then confirm in the Gatekeeper dialog. After that it launches normally.
+>
+> If macOS instead says **"PIDhound is damaged and can't be opened"** (happens on some Sequoia/Tahoe configurations), strip the quarantine attribute once:
+>
+> ```sh
+> xattr -dr com.apple.quarantine /Applications/PIDhound.app
+> ```
+>
+> Then double-click as usual.
 
 A Homebrew cask is planned for v1.1.
 
