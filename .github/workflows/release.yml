@@ -36,7 +36,15 @@ jobs:
 
             Download `PIDhound-${{ steps.version.outputs.VERSION }}.dmg`, open it, drag PIDhound to Applications.
 
-            **First launch:** right-click -> Open (the app is unsigned for this release).
+            **First launch:** the DMG is ad-hoc signed but not notarized. On macOS Sonoma, Sequoia, and Tahoe (26), Gatekeeper blocks ad-hoc signed apps on first launch. To clear the block, run this once in Terminal:
+
+            ```sh
+            xattr -dr com.apple.quarantine /Applications/PIDhound.app
+            ```
+
+            Then double-click PIDhound as usual. You only need to run this once per install.
+
+            The **System Settings -> Privacy & Security -> Open Anyway** flow can also work on some systems, but it's unreliable for ad-hoc signed apps - if you tried it and the app still won't open (or shows "damaged"), run the command above.
 
             ### SHA256
             ```

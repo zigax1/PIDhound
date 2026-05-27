@@ -6,27 +6,27 @@ A Mac menu-bar tool for finding and killing stale Claude sessions, MCP servers, 
 
 ![PIDhound dashboard](resources/screenshots/dashboard.png)
 
+Heavy AI coding sessions kept ending the same way: multiple Claude windows running, MCPs everywhere, Playwright in the background, Docker chugging — and at some point my MacBook fans would scream and the case got hot. I'd ask Claude what to kill, paste the commands back one at a time, things would calm down. Next session, same dance. After enough of that I built a button.
+
 ## Install
 
 Download the latest DMG from [Releases](https://github.com/zigax1/PIDhound/releases), drag PIDhound to Applications, and launch.
 
 **Requirements:** macOS 14 Sonoma or later, Apple Silicon (M1 / M2 / M3 / M4).
 
-> **First launch note:** the v1.0 DMG is ad-hoc signed but not notarized. On first launch, right-click PIDhound in Applications, choose **Open**, then confirm in the Gatekeeper dialog. After that it launches normally.
->
-> If macOS instead says **"PIDhound is damaged and can't be opened"** (happens on some Sequoia/Tahoe configurations), strip the quarantine attribute once:
+> **First launch:** the v1.0 DMG is ad-hoc signed but not notarized. On macOS Sonoma, Sequoia, and Tahoe (26), Gatekeeper blocks ad-hoc signed apps on first launch. To clear the block, run this once in Terminal:
 >
 > ```sh
 > xattr -dr com.apple.quarantine /Applications/PIDhound.app
 > ```
 >
-> Then double-click as usual.
+> Then double-click PIDhound as usual. You only need to run this once per install.
+>
+> The **System Settings → Privacy & Security → Open Anyway** flow can also work on some systems, but it's unreliable for ad-hoc signed apps — if you tried it and the app still won't open (or shows "damaged"), run the command above.
 
 A Homebrew cask is planned for v1.1.
 
 ## Why
-
-Heavy AI coding sessions kept ending the same way: multiple Claude windows running, MCPs everywhere, Playwright in the background, Docker chugging — and at some point my MacBook fans would scream and the case got hot. I'd ask Claude what to kill, paste the commands back one at a time, things would calm down. Next session, same dance. After enough of that I built a button.
 
 Modern AI-assisted coding spawns dozens of long-lived processes per workday — Claude sessions, MCP servers (per client, per tool), Playwright runs, dev servers, AI helpers. Many outlive their usefulness. The result: sustained high CPU, hot Mac, loud fans, drained battery.
 
