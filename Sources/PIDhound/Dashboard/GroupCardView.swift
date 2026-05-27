@@ -76,13 +76,7 @@ public struct GroupCardView: View {
             Text(formatBytes(proc.snapshot.residentSizeBytes))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(theme.textSecondary)
-            Button(action: { onKillProcess(proc.snapshot.pid) }) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(isHovered ? theme.danger : theme.danger.opacity(0.65))
-                    .font(.system(size: 13))
-            }
-            .buttonStyle(.plain)
-            .help("Kill PID \(proc.snapshot.pid)")
+            KillButton(pid: proc.snapshot.pid) { onKillProcess(proc.snapshot.pid) }
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 5)
